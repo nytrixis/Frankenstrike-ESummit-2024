@@ -112,20 +112,34 @@ const SOSPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setRequestSent(true);
+    const sosData = {
+      ...formData,
+      latitude: location?.latitude,
+      longitude: location?.longitude,
+      timestamp: new Date().toISOString()
+    };
     
-    // Speak confirmation message
-    speakMessage(t('Request Sent. Help is on the way.'), formData.language);
-
+    
     try {
-      const response = await getAIResponse(formData);
-      setAiResponse(response);
-      
-      // Wait for confirmation message to finish before speaking AI response
-      setTimeout(() => {
-        speakMessage(response, formData.language);
-      }, 2000);
+      // Send data to backend
+      const response = await fetch('http://localhost:3000/api/sos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(sosData)
+      });
+  
+      if (response.ok) {
+        speakMessage(t('Request Sent. Help is on the way.'), formData.language);
+        const aiResponse = await getAIResponse(formData);
+        setAiResponse(aiResponse);
+        setTimeout(() => {
+          speakMessage(aiResponse, formData.language);
+        }, 2000);
+      }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error sending SOS data:', error);
     }
   };
 

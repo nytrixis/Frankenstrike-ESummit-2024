@@ -4,24 +4,52 @@ import { motion } from 'framer-motion';
 const Dashboard = () => {
   const [requests, setRequests] = useState([]);
 
-  useEffect(() => {
-    // Fetch requests from your backend or local storage
-    // For now, we'll use mock data
-    const mockRequests = [
-      { id: 1, name: 'John Doe', age: 35, gender: 'Male', latitude: 28.6139, longitude: 77.2090, symptoms: 'Chest pain', problem: 'Possible heart attack' },
-      { id: 2, name: 'Jane Smith', age: 28, gender: 'Female', latitude: 19.0760, longitude: 72.8777, symptoms: 'Difficulty breathing', problem: 'Asthma attack' },
-    ];
-    setRequests(mockRequests);
-  }, []);
-
-  const handleAction = (id, action) => {
-    setRequests(requests.map(req => 
-      req.id === id ? { ...req, status: action } : req
-    ));
+  const fetchRequests = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/sos');
+      const data = await response.json();
+      setRequests(data);
+    } catch (error) {
+      console.log('Error fetching requests:', error);
+    }
   };
 
-  const handleDelete = (id) => {
-    setRequests(requests.filter(req => req.id !== id));
+  useEffect(() => {
+    fetchRequests();
+    const interval = setInterval(fetchRequests, 10000); // Poll every 10 seconds
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleAction = async (id, action) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/sos/${id}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: action })
+      });
+      if (response.ok) {
+        setRequests(requests.map(req =>
+          req.id === id ? { ...req, status: action } : req
+        ));
+      }
+    } catch (error) {
+      console.log('Error updating status:', error);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/sos/${id}`, {
+        method: 'DELETE'
+      });
+      if (response.ok) {
+        setRequests(requests.filter(req => req.id !== id));
+      }
+    } catch (error) {
+      console.log('Error deleting request:', error);
+    }
   };
 
   return (
@@ -66,44 +94,43 @@ const Dashboard = () => {
               <td className="py-4 px-4">{request.problem}</td>
               <td className="py-4 px-4">
                 <button 
-                    onClick={() => handleAction(request.id, 'sent')}
-                    className={`mr-2 px-3 py-1 rounded ${
+                  onClick={() => handleAction(request.id, 'sent')}
+                  className={`mr-2 px-3 py-1 rounded ${
                     request.status === 'sent' 
-                        ? 'bg-green-600' 
-                        : request.status 
-                        ? 'bg-gray-400 cursor-not-allowed' 
-                        : 'bg-green-500 hover:bg-green-600'
-                    }`}
-                    disabled={request.status && request.status !== 'sent'}
+                      ? 'bg-green-600' 
+                      : request.status 
+                      ? 'bg-gray-400 cursor-not-allowed' 
+                      : 'bg-green-500 hover:bg-green-600'
+                  }`}
+                  disabled={request.status && request.status !== 'sent'}
                 >
-                    Sent
+                  Sent
                 </button>
                 <button 
-                    onClick={() => handleAction(request.id, 'received')}
-                    className={`mr-2 px-3 py-1 rounded ${
+                  onClick={() => handleAction(request.id, 'received')}
+                  className={`mr-2 px-3 py-1 rounded ${
                     request.status === 'received' 
-                        ? 'bg-yellow-600' 
-                        : request.status 
-                        ? 'bg-gray-400 cursor-not-allowed' 
-                        : 'bg-yellow-500 hover:bg-yellow-600'
-                    }`}
-                    disabled={request.status && request.status !== 'received'}
+                      ? 'bg-yellow-600' 
+                      : request.status 
+                      ? 'bg-gray-400 cursor-not-allowed' 
+                      : 'bg-yellow-500 hover:bg-yellow-600'
+                  }`}
+                  disabled={request.status && request.status !== 'received'}
                 >
-                    Received
+                  Received
                 </button>
                 <button 
-                    onClick={() => handleDelete(request.id)}
-                    className={`px-3 py-1 rounded ${
+                  onClick={() => handleDelete(request.id)}
+                  className={`px-3 py-1 rounded ${
                     request.status 
-                        ? 'bg-gray-400 cursor-not-allowed' 
-                        : 'bg-red-500 hover:bg-red-600'
-                    }`}
-                    disabled={request.status}
+                      ? 'bg-gray-400 cursor-not-allowed' 
+                      : 'bg-red-500 hover:bg-red-600'
+                  }`}
+                  disabled={request.status}
                 >
-                    Delete
+                  Delete
                 </button>
-                </td>
-
+              </td>
             </tr>
           ))}
         </tbody>
