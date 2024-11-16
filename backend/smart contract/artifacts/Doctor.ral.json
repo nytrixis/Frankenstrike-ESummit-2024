@@ -1,0 +1,60 @@
+{
+  "version": "v3.8.0",
+  "name": "Doctor",
+  "bytecode": "02030e40204045010000000103d3c3401fcaa00002010001010005d395a08ec5a00016002aa100010201010013d30fb898ceb4ce00450c7b1600a000320d7bb2ce001600a7a00016002ba100",
+  "codeHash": "e74a8fc8dca69a39e38ac7392c4e421c06934451ea529ff57ad97e0c20b06239",
+  "fieldsSig": {
+    "names": [
+      "owner",
+      "insuranceBalance"
+    ],
+    "types": [
+      "Address",
+      "U256"
+    ],
+    "isMutable": [
+      false,
+      true
+    ]
+  },
+  "eventsSig": [],
+  "functions": [
+    {
+      "name": "getBalance",
+      "paramNames": [],
+      "paramTypes": [],
+      "paramIsMutable": [],
+      "returnTypes": [
+        "U256"
+      ]
+    },
+    {
+      "name": "receivePayment",
+      "paramNames": [
+        "amount"
+      ],
+      "paramTypes": [
+        "U256"
+      ],
+      "paramIsMutable": [
+        false
+      ],
+      "returnTypes": []
+    },
+    {
+      "name": "withdraw",
+      "paramNames": [
+        "amount"
+      ],
+      "paramTypes": [
+        "U256"
+      ],
+      "paramIsMutable": [
+        false
+      ],
+      "returnTypes": []
+    }
+  ],
+  "constants": [],
+  "enums": []
+}

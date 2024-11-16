@@ -1,0 +1,28 @@
+{
+  "version": "v3.8.0",
+  "name": "Transfer",
+  "bytecodeTemplate": "01010300000004b4{0}{1}a7",
+  "fieldsSig": {
+    "names": [
+      "recipient",
+      "amount"
+    ],
+    "types": [
+      "Address",
+      "U256"
+    ],
+    "isMutable": [
+      false,
+      false
+    ]
+  },
+  "functions": [
+    {
+      "name": "main",
+      "paramNames": [],
+      "paramTypes": [],
+      "paramIsMutable": [],
+      "returnTypes": []
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+TxScript Transfer(recipient: Address, amount: U256) {
+  transferToken!(callerAddress!(), recipient, ALPH, amount)
+}

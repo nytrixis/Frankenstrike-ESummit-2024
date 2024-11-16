@@ -1,0 +1,21 @@
+Contract Doctor(
+    owner: Address,
+    mut insuranceBalance: U256
+) {
+    pub fn getBalance() -> U256 {
+        return insuranceBalance
+    }
+
+    @using(updateFields = true, checkExternalCaller = false)
+    pub fn receivePayment(amount: U256) -> () {
+        insuranceBalance = insuranceBalance + amount
+    }
+
+    @using(updateFields = true, assetsInContract = true, checkExternalCaller = false)
+    pub fn withdraw(amount: U256) -> () {
+        assert!(callerAddress!() == owner, 0)
+        assert!(amount <= insuranceBalance, 1)
+        transferToken!(selfAddress!(), owner, ALPH, amount)
+        insuranceBalance = insuranceBalance - amount
+    }
+}
