@@ -2,7 +2,13 @@
   "name": "alephium-nextjs-template",
   "version": "0.1.0",
   "license": "GPL",
-  "type": "commonjs",
+  "type": "module",
+  "postcss": {
+    "plugins": {
+      "tailwindcss": {},
+      "autoprefixer": {}
+    }
+  },
   "scripts": {
     "dev": "next dev",
     "start": "next start",
@@ -68,4 +74,5 @@
     "node": ">=18.0.0",
     "npm": ">=10.0.0"
   }
+
 }

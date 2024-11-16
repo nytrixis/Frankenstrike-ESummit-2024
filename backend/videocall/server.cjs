@@ -10,7 +10,7 @@ const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
         origin: "http://localhost:5173",
-        methods: ["GET", "POST"],
+        methods: ["GET", "POST", "PUT", "DELETE"],
         allowedHeaders: ["Content-Type"]
     }
 });
@@ -18,7 +18,7 @@ const io = socketIo(server, {
 // Middleware
 app.use(cors({
     origin: 'http://localhost:5173', // Allow requests from your frontend
-    methods: ['GET', 'POST', 'PATCH'],
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type'],
 }));
 app.use(express.json());
@@ -27,6 +27,56 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Store virtual consultation requests
 let consultations = [];
 let appointments = [];
+let sosRequests = [];
+
+app.post('/api/sos', (req, res) => {
+    const sosData = req.body;
+    const id = crypto.randomBytes(8).toString('hex');
+    const newSOS = { 
+        id, 
+        ...sosData,
+        status: null,
+        timestamp: new Date().toISOString()
+    };
+    sosRequests.push(newSOS);
+    
+    // Emit new SOS request to all connected clients
+    io.emit('new-sos-request', newSOS);
+    
+    res.status(201).json(newSOS);
+});
+
+app.get('/api/sos', (req, res) => {
+    res.json(sosRequests);
+});
+
+app.put('/api/sos/:id/status', (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    
+    const sosRequest = sosRequests.find(req => req.id === id);
+    if (sosRequest) {
+        sosRequest.status = status;
+        io.emit('sos-status-update', { id, status });
+        res.json(sosRequest);
+    } else {
+        res.status(404).json({ message: 'SOS request not found' });
+    }
+});
+
+app.delete('/api/sos/:id', (req, res) => {
+    const { id } = req.params;
+    const index = sosRequests.findIndex(req => req.id === id);
+    
+    if (index !== -1) {
+        sosRequests.splice(index, 1);
+        io.emit('sos-request-deleted', id);
+        res.json({ message: 'SOS request deleted' });
+    } else {
+        res.status(404).json({ message: 'SOS request not found' });
+    }
+});
+
 
 // API to generate a unique video call link
 app.post('/generate-video-call-link', (req, res) => {
@@ -81,6 +131,9 @@ io.on('connection', (socket) => {
     socket.on('offer', (offer) => socket.broadcast.emit('offer', offer));
     socket.on('answer', (answer) => socket.broadcast.emit('answer', answer));
     socket.on('ice-candidate', (candidate) => socket.broadcast.emit('ice-candidate', candidate));
+    socket.on('sos-request', (data) => {
+        io.emit('new-sos-request', data);
+    });
 });
 
 server.listen(3000, () => console.log('Server running on port 3000'));
