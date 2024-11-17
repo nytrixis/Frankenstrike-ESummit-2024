@@ -1,32 +1,20 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, addDoc, query, where, getDocs } from 'firebase/firestore';
-import { getAnalytics } from 'firebase/analytics';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import SharedBackground from './SharedBackground';
-
-// Firebase configuration (replace with your own)
-const firebaseConfig = {
-  apiKey: "AIzaSyCzmbMfCSCnNt180N8knTh_AAHQULWCi9s",
-  authDomain: "kawach-2e2dd.firebaseapp.com",
-  projectId: "kawach-2e2dd",
-  storageBucket: "kawach-2e2dd.appspot.com",
-  messagingSenderId: "608995123680",
-  appId: "1:608995123680:web:c56441173eecc75f100b85",
-  measurementId: "G-0580NK7N7S"
-};
-
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const db = getFirestore(app);
-const auth = getAuth(app);
+import axios from 'axios';
 
 const LoginSignup = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [uniqueCode, setUniqueCode] = useState('');
   const [formData, setFormData] = useState({
-    name: '', dob: '', gender: '', role: '', contactNumber: '', email: '', emergencyContact: '', password: ''
+    name: '', 
+    dob: '', 
+    gender: '', 
+    role: '', 
+    contactNumber: '', 
+    email: '', 
+    emergencyContact: '', 
+    password: ''
   });
   const navigate = useNavigate();
 
@@ -58,39 +46,54 @@ const LoginSignup = () => {
     const { name, dob, gender, role, contactNumber, email, emergencyContact, password } = formData;
 
     if (isLogin) {
-      // Login logic with unique code
       try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        alert('Login successful!');
-        navigate('/');
+        const response = await axios.post('http://localhost:3002/api/auth/login', {
+          email,
+          password,
+          uniqueCode
+        });
+
+        if (response.data.token) {
+          localStorage.setItem('token', response.data.token);
+          localStorage.setItem('user', JSON.stringify(response.data.user));
+          navigate('/patient');
+        }
       } catch (error) {
-        alert('Error logging in: ' + error.message);
+        alert('Error logging in: ' + error.response.data.message);
       }
     } else {
-      // Signup logic
-      const uniqueCode = generateUniqueCode();
-      const age = calculateAge(dob);
-      const userData = { name, dob, gender, role, contactNumber, email, emergencyContact, age, uniqueCode };
-
       try {
-        // Check if email already exists
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const uniqueCode = generateUniqueCode();
+        const age = calculateAge(dob);
+        
+        const userData = {
+          name,
+          dob,
+          gender,
+          role,
+          contactNumber,
+          email,
+          emergencyContact,
+          age,
+          uniqueCode,
+          password
+        };
 
-        // Add user data to Firestore
-        await addDoc(collection(db, 'users'), userData);
+        const response = await axios.post('http://localhost:3002/api/auth/signup', userData);
 
-        // Show unique code on screen
-        alert(`Your unique code is: ${uniqueCode}. Please save this for login.`);
-        navigate('/');
+        if (response.data.success) {
+          alert(`Your unique code is: ${uniqueCode}. Please save this for login.`);
+          navigate('/patient');
+        }
       } catch (error) {
-        if (error.code === 'auth/email-already-in-use') {
+        if (error.response.data.message.includes('duplicate')) {
           alert('This email is already in use. Please log in.');
         } else {
           console.error('Error adding user: ', error);
         }
       }
     }
-};
+  };
 
 
   return (

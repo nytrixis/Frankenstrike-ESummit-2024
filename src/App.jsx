@@ -145,7 +145,7 @@ function App() {
           } />
           <Route path='/dash' element={
             <>
-            <PatientNavbar />
+            <DoctorNavbar />
             <SharedBackground>
               <DoctorDash />
               <Footer />
@@ -165,6 +165,15 @@ function App() {
           <Route path='/docsen' element={
             <>
             <PatientNavbar />
+            <SharedBackground>
+              <DocumentSentinel />
+              <Footer />
+            </SharedBackground>
+            </>
+          } />
+          <Route path='/docsenn' element={
+            <>
+            <DoctorNavbar />
             <SharedBackground>
               <DocumentSentinel />
               <Footer />

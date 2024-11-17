@@ -10,6 +10,7 @@ const PrescriptionDisplay = () => {
   const [prescriptionData, setPrescriptionData] = useState(null);
   const [isPaid, setIsPaid] = useState(false);
 
+
   useEffect(() => {
     const data = localStorage.getItem('prescriptionData');
     if (data) {
@@ -21,7 +22,7 @@ const PrescriptionDisplay = () => {
     setIsPaid(true);
     const updatedData = { ...prescriptionData, isPaid: true };
     localStorage.setItem('prescriptionData', JSON.stringify(updatedData));
-    window.location.href = 'http://localhost:3000';
+    window.location.href = 'http://localhost:3001';
   };
 
   if (!prescriptionData) return null;
@@ -116,7 +117,59 @@ const PrescriptionDisplay = () => {
 const PatientLandingPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const sidebarRef = useRef (null);
-  const [timer, setTimer] = useState(3600); // 1 hour in seconds
+  const [timer, setTimer] = useState(3600);
+  const navigate = useNavigate(); 
+
+  const [isListening, setIsListening] = useState(false);
+  const [browserSupported, setBrowserSupported] = useState(true);
+  
+  useEffect(() => {
+    const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+    if (!SpeechRecognition) {
+      setBrowserSupported(false);
+      console.log("Speech recognition not supported");
+    }
+  }, []);
+
+  const handleSOSClick = () => {
+    if (!browserSupported) {
+      alert('Please use Chrome browser for voice recognition');
+      return;
+    }
+    setIsListening(true);
+  };
+
+  useEffect(() => {
+    if (!isListening || !browserSupported) return;
+
+    const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+    const recognition = new SpeechRecognition();
+
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => {
+      console.log('Listening started...');
+      const speechSynthesis = window.speechSynthesis;
+      const utterance = new SpeechSynthesisUtterance("Please say Ambulance");
+      speechSynthesis.speak(utterance);
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript.toLowerCase();
+      console.log('Heard:', transcript);
+      if (transcript.includes('ambulance')) {
+        navigate('/sos');
+      }
+    };
+
+    recognition.start();
+
+    return () => {
+      recognition.stop();
+    };
+  }, [isListening, browserSupported, navigate]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -167,13 +220,14 @@ const PatientLandingPage = () => {
           <FaBars className="text-white text-2xl" />
         </motion.button>
         <motion.button
-          className="bg-red-600 text-white text-xl px-10 py-2 rounded-full flex items-center"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <FaMicrophone className="mr-2" />
-          SOS
-        </motion.button>
+    className="bg-red-600 text-white text-xl px-10 py-2 rounded-full flex items-center"
+    whileHover={{ scale: 1.05 }}
+    whileTap={{ scale: 0.95 }}
+    onClick={handleSOSClick}
+  >
+    <FaMicrophone className="mr-2" />
+    SOS
+  </motion.button>
       </div>
 
       {isSidebarOpen && (
@@ -193,7 +247,7 @@ const PatientLandingPage = () => {
             <FaHistory className="mr-2" />
             Appointment History
           </Link>
-          <Link to="/disease-predictions" className="flex items-center mb-8">
+          <Link to="/prediction" className="flex items-center mb-8">
             <FaChartLine className="mr-2" />
             Disease Predictions
           </Link>

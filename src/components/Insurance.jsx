@@ -18,7 +18,7 @@ const ConfirmationModal = ({ isOpen, onClose, plan }) => {
             recipientAddress: recipientAddress,
             amount: plan.price
         }));
-        window.location.href = 'http://localhost:3000';
+        window.location.href = 'http://localhost:3001';
     };
 
     return (

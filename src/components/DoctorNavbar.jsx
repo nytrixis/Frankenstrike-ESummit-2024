@@ -19,8 +19,8 @@ const Navbar = () => {
   <div className="flex space-x-10 text-l text-gray-400">
     <NavLink to="/dash">Dashboard</NavLink>
     <NavLink to="/dashboard">SOS Requests</NavLink>
-    <NavLink to="/docsen">Document Sentinel</NavLink>
-    <NavLink to="/consultation">Consultation</NavLink>
+    <NavLink to="/docsenn">Document Sentinel</NavLink>
+    {/* <NavLink to="/consultation">Consultation</NavLink> */}
     <NavLink to="/workspace">Workspace</NavLink>
   </div>
 </div>
