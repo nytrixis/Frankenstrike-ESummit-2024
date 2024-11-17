@@ -340,7 +340,7 @@ const PatientLandingPage = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3, delay: 0.1 }}
         >
-          <td className="p-4">2023-09-15</td>
+          <td className="p-4">20-11-2024</td>
           <td className="p-4">10:00 AM</td>
           <td className="p-4">Dr. Smith</td>
           <td className="p-4">Check-up</td>
@@ -351,7 +351,7 @@ const PatientLandingPage = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3, delay: 0.2 }}
         >
-          <td className="p-4">2023-09-20</td>
+          <td className="p-4">27-11-2024</td>
           <td className="p-4">2:30 PM</td>
           <td className="p-4">Dr. Johnson</td>
           <td className="p-4">Follow-up</td>
